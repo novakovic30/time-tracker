@@ -24,6 +24,16 @@ namespace time_tracker_api.Controllers
 
             return Ok(employees);
         }
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetUserById(int id)
+        {
+            var user = _users.Find(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
 
         [HttpPost]
         public async Task<IActionResult> addUser([FromBody] User userRequest)
