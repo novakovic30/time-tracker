@@ -24,15 +24,32 @@ namespace time_tracker_api.Controllers
 
             return Ok(employees);
         }
+
         [HttpGet("GetById/{id}")]
-        public IActionResult GetUserById(int id)
+        public async Task<IActionResult> GetUserById(int id)
         {
-            var user = _users.Find(u => u.Id == id);
+            var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
             {
                 return NotFound();
             }
             return Ok(user);
+        }
+
+        [HttpPost("CheckCredentials")]
+        public async Task<IActionResult> CheckCredentials([FromBody] CredentialsModel credentials)
+        {
+            Console.Write(credentials.email + " " + credentials.password);
+            var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Email == credentials.email);
+            if (user == null)
+            {
+                return Ok(false);
+            }
+            if(user.Password == credentials.password)
+            {
+                return Ok(true);
+            }
+            return Ok(false);
         }
 
         [HttpPost]
@@ -45,5 +62,11 @@ namespace time_tracker_api.Controllers
         }
         
        
+    }
+
+    public class CredentialsModel
+    {
+        public string email { get; set; }
+        public string password { get; set; }
     }
 }
