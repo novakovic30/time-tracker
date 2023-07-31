@@ -43,13 +43,13 @@ namespace time_tracker_api.Controllers
             var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Email == credentials.email);
             if (user == null)
             {
-                return Ok(false);
+                return Ok(null);
             }
             if(user.Password == credentials.password)
             {
-                return Ok(true);
+                return Ok(user);
             }
-            return Ok(false);
+            return Ok(null);
         }
 
         [HttpPost]
