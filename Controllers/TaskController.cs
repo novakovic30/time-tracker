@@ -58,5 +58,27 @@ namespace time_tracker_api.Controllers
 
             return Ok();
         }
+
+        [HttpPost("update/{id}")]
+        public async Task<IActionResult> updateTask(int id, [FromBody] Models.Task updatedTask)
+        {
+            var existingTask = await _timeTrackerDbContext.Tasks.FindAsync(id);
+
+            if (existingTask == null)
+                return NotFound();
+
+            existingTask.Title = updatedTask.Title;
+            existingTask.Description = updatedTask.Description;
+            existingTask.Created = updatedTask.Created;
+            existingTask.Updated = updatedTask.Updated;
+            existingTask.Status = updatedTask.Status;
+            existingTask.TotalHours = updatedTask.TotalHours;
+            existingTask.Hours = updatedTask.Hours;
+            existingTask.UserId = updatedTask.UserId;
+
+            await _timeTrackerDbContext.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }
