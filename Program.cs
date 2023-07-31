@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using time_tracker_api.Data;
+using time_tracker_api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

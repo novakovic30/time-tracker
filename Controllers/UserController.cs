@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using time_tracker_api.Data;
 using time_tracker_api.Models;
 
@@ -17,14 +16,26 @@ namespace time_tracker_api.Controllers
             _timeTrackerDbContext = timeTrackerDbContext;
         }
 
+        // GET: /users
+        // Retrieve all users from the database
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var employees = await _timeTrackerDbContext.Users.ToListAsync();
+            var users = await _timeTrackerDbContext.Users.ToListAsync();
+            return Ok(users);
+        }
+         
+        [HttpPost("AddUser")]
+        public async Task<IActionResult> AddUser([FromBody] User userRequest)
+        {
+            await _timeTrackerDbContext.Users.AddAsync(userRequest);
+            await _timeTrackerDbContext.SaveChangesAsync();
 
-            return Ok(employees);
+            return Ok(userRequest);
         }
 
+        // GET: /users/GetById/{id}
+        // Retrieve a user by their ID
         [HttpGet("GetById/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -36,6 +47,8 @@ namespace time_tracker_api.Controllers
             return Ok(user);
         }
 
+        // POST: /users/CheckCredentials
+        // Check if the provided login credentials are correct
         [HttpPost("CheckCredentials")]
         public async Task<IActionResult> CheckCredentials([FromBody] CredentialsModel credentials)
         {
@@ -45,7 +58,7 @@ namespace time_tracker_api.Controllers
             {
                 return Ok(false);
             }
-            if(user.Password == credentials.password)
+            if (user.Password == credentials.password)
             {
                 return Ok(true);
             }
@@ -60,10 +73,12 @@ namespace time_tracker_api.Controllers
 
             return Ok(userRequest);
         }
-        
-       
-    }
 
+
+    }
+}
+
+    // Data model for login credentials
     public class CredentialsModel
     {
         public string email { get; set; }
