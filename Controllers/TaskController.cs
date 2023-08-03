@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using time_tracker_api.Data;
 
@@ -15,7 +16,7 @@ namespace time_tracker_api.Controllers
             _timeTrackerDbContext = timeTrackerDbContext;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> getAllTasks()
         {
             var tasks = await _timeTrackerDbContext.Tasks.ToListAsync();
@@ -23,7 +24,7 @@ namespace time_tracker_api.Controllers
             return Ok(tasks);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> addTask([FromBody] Models.Task taskRequest)
         {
             await _timeTrackerDbContext.Tasks.AddAsync(taskRequest);
@@ -32,7 +33,7 @@ namespace time_tracker_api.Controllers
             return Ok(taskRequest);
         }
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetById/{id}"), Authorize]
         public async Task<IActionResult> getTasksById(int id)
         {
             var tasks = await _timeTrackerDbContext.Tasks
@@ -45,7 +46,7 @@ namespace time_tracker_api.Controllers
             return Ok(tasks);
         }
 
-        [HttpGet("delete/{id}")]
+        [HttpGet("delete/{id}"), Authorize]
         public async Task<IActionResult> deleteTask(int id)
         {
             var task = await _timeTrackerDbContext.Tasks.FirstOrDefaultAsync(task => task.Id == id);
@@ -59,7 +60,7 @@ namespace time_tracker_api.Controllers
             return Ok();
         }
 
-        [HttpPost("update/{id}")]
+        [HttpPost("update/{id}"), Authorize]
         public async Task<IActionResult> updateTask(int id, [FromBody] Models.Task updatedTask)
         {
             var existingTask = await _timeTrackerDbContext.Tasks.FindAsync(id);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using time_tracker_api.Data;
 using time_tracker_api.Models;
@@ -10,15 +11,15 @@ namespace time_tracker_api.Controllers
     public class UserController : Controller
     {
         private readonly TimeTrackerDbContext _timeTrackerDbContext;
-
-        public UserController(TimeTrackerDbContext timeTrackerDbContext)
+        
+        public UserController(TimeTrackerDbContext timeTrackerDbContext, IConfiguration configuration)
         {
             _timeTrackerDbContext = timeTrackerDbContext;
         }
 
         // GET: /users
         // Retrieve all users from the database
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _timeTrackerDbContext.Users.ToListAsync();
@@ -36,7 +37,7 @@ namespace time_tracker_api.Controllers
 
         // GET: /users/GetById/{id}
         // Retrieve a user by their ID
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetById/{id}"), Authorize]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -47,25 +48,20 @@ namespace time_tracker_api.Controllers
             return Ok(user);
         }
 
-        // POST: /users/CheckCredentials
-        // Check if the provided login credentials are correct
-        [HttpPost("CheckCredentials")]
-        public async Task<IActionResult> CheckCredentials([FromBody] CredentialsModel credentials)
+        // POST: /user/GetByEmail/{email}
+        // Retrieve a user by their Email
+        [HttpPost("GetByEmail/{email}"), Authorize]
+        public async Task<IActionResult> CheckCredentials(string email)
         {
-            Console.Write(credentials.email + " " + credentials.password);
-            var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Email == credentials.email);
+            var user = await _timeTrackerDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                return Ok(null);
+                return NotFound();
             }
-            if (user.Password == credentials.password)
-            {
-                return Ok(user);
-            }
-            return Ok(null);
+            return Ok(user);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> addUser([FromBody] User userRequest)
         {
             await _timeTrackerDbContext.Users.AddAsync(userRequest);
@@ -74,14 +70,5 @@ namespace time_tracker_api.Controllers
             return Ok(userRequest);
         }
 
-
-    }
-}
-
-    // Data model for login credentials
-    public class CredentialsModel
-    {
-        public string email { get; set; }
-        public string password { get; set; }
     }
 }
